@@ -178,6 +178,149 @@ button:active {
   font-size: 0.92rem;
 }
 
+.panel-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.panel-title-row h2 {
+  margin: 0;
+}
+
+.keyboard-badge {
+  font-size: 0.78rem;
+  color: var(--muted);
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+
+.steer-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.steer-section h3 {
+  margin: 0 0 8px;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.pad {
+  display: grid;
+  gap: 8px;
+  justify-content: center;
+}
+
+.pad-drive {
+  justify-items: center;
+}
+
+.pad-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.pad-steer {
+  grid-template-columns: repeat(3, 72px);
+}
+
+.pad-camera {
+  grid-template-columns: repeat(3, 72px);
+  grid-template-rows: repeat(3, 72px);
+}
+
+.pad-camera .pad-up {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.pad-camera .pad-down {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+.pad-camera .pad-left {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.pad-camera .pad-right {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.pad-camera .pad-center {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.pad-btn {
+  width: 72px;
+  height: 72px;
+  min-width: 72px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  border-radius: 12px;
+  background: var(--key);
+  border: 1px solid var(--panel-border);
+  color: var(--text);
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.pad-btn .arrow {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.pad-btn span:last-child {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.pad-btn.active,
+.pad-btn:active {
+  background: var(--key-active);
+  border-color: #8aa4ff;
+  box-shadow: 0 0 0 2px rgba(79, 116, 255, 0.25);
+}
+
+.pad-stop {
+  width: 72px;
+  height: 72px;
+  border-color: rgba(255, 107, 107, 0.45);
+  color: #ffb4b4;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.pad-center {
+  font-size: 1.35rem;
+}
+
+.control-legend {
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.control-panel {
+  outline: none;
+}
+
 kbd {
   display: inline-block;
   min-width: 1.5rem;

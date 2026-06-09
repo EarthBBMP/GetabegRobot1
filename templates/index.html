@@ -44,22 +44,60 @@
       </section>
 
       <aside class="side-column">
-        <section class="panel control-panel">
-          <h2>Keyboard Control</h2>
-          <p class="hint">Use <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> to drive. <kbd>Space</kbd> to stop.</p>
-          <div id="key-grid" class="key-grid" tabindex="0">
-            <div class="key-row">
-              <span class="key-cap" data-key="W">W</span>
+        <section class="panel control-panel" id="control-panel" tabindex="0">
+          <div class="panel-title-row">
+            <h2>Dual-Steer Robot Panel</h2>
+            <span class="keyboard-badge">Keyboard supported</span>
+          </div>
+
+          <div class="steer-grid">
+            <div class="steer-section">
+              <h3>DRIVE</h3>
+              <div class="pad pad-drive">
+                <button type="button" class="pad-btn pad-up" data-key="W" data-action="down" aria-label="Forward W"><span class="arrow">↑</span><span>W</span></button>
+                <div class="pad-row">
+                  <button type="button" class="pad-btn pad-stop" data-key="STOP" data-action="press" aria-label="Stop">Stop</button>
+                </div>
+                <button type="button" class="pad-btn pad-down" data-key="S" data-action="down" aria-label="Backward S"><span class="arrow">↓</span><span>S</span></button>
+              </div>
             </div>
-            <div class="key-row">
-              <span class="key-cap" data-key="A">A</span>
-              <span class="key-cap" data-key="S">S</span>
-              <span class="key-cap" data-key="D">D</span>
+
+            <div class="steer-section">
+              <h3>FRONT STEERING</h3>
+              <div class="pad pad-steer">
+                <button type="button" class="pad-btn pad-left" data-key="A" data-action="down" aria-label="Front left A"><span class="arrow">←</span><span>A</span></button>
+                <button type="button" class="pad-btn pad-center" data-key="F" data-action="press" aria-label="Front center F">&#9678;<span>F</span></button>
+                <button type="button" class="pad-btn pad-right" data-key="D" data-action="down" aria-label="Front right D"><span class="arrow">→</span><span>D</span></button>
+              </div>
             </div>
-            <div class="key-row">
-              <span class="key-cap wide" data-key=" ">STOP</span>
+
+            <div class="steer-section">
+              <h3>BACK STEERING</h3>
+              <div class="pad pad-steer">
+                <button type="button" class="pad-btn pad-left" data-key="Z" data-action="down" aria-label="Back left Z"><span class="arrow">←</span><span>Z</span></button>
+                <button type="button" class="pad-btn pad-center" data-key="V" data-action="press" aria-label="Back center V">&#9678;<span>V</span></button>
+                <button type="button" class="pad-btn pad-right" data-key="C" data-action="down" aria-label="Back right C"><span class="arrow">→</span><span>C</span></button>
+              </div>
+            </div>
+
+            <div class="steer-section">
+              <h3>CAMERA</h3>
+              <div class="pad pad-camera">
+                <button type="button" class="pad-btn pad-up" data-key="8" data-action="down" aria-label="Camera up 8"><span class="arrow">↑</span><span>8</span></button>
+                <button type="button" class="pad-btn pad-left" data-key="4" data-action="down" aria-label="Camera left 4"><span class="arrow">←</span><span>4</span></button>
+                <button type="button" class="pad-btn pad-center" data-key="5" data-action="press" aria-label="Camera center 5">&#9678;<span>5</span></button>
+                <button type="button" class="pad-btn pad-right" data-key="6" data-action="down" aria-label="Camera right 6"><span class="arrow">→</span><span>6</span></button>
+                <button type="button" class="pad-btn pad-down" data-key="2" data-action="down" aria-label="Camera down 2"><span class="arrow">↓</span><span>2</span></button>
+              </div>
             </div>
           </div>
+
+          <p class="control-legend">
+            <kbd>W</kbd>/<kbd>S</kbd> hold to move, release to stop.
+            <kbd>A</kbd>/<kbd>D</kbd> and <kbd>Z</kbd>/<kbd>C</kbd> hold to steer, release to hold angle.
+            <kbd>F</kbd>/<kbd>V</kbd> re-center. Numpad <kbd>8</kbd><kbd>2</kbd><kbd>4</kbd><kbd>6</kbd><kbd>5</kbd> for camera.
+          </p>
+
           <div class="control-meta">
             <div><span class="label">Key Pressed</span><span id="key-pressed">None</span></div>
             <div><span class="label">ESP32 Response</span><code id="robot-response">{"key_received":"None"}</code></div>
@@ -69,11 +107,9 @@
         <section class="panel help-panel">
           <h2>Setup</h2>
           <ul>
-            <li><strong>Robot:</strong> ESP32-C3 over Ethernet (LAN). PC and robot on the same network.</li>
-            <li><strong>Camera:</strong> Join SJ4000 Wi-Fi. Default camera IP is <code>192.168.1.254</code>.</li>
-            <li><strong>SJ4000 MJPEG:</strong> Switch camera to Photo mode, then Start Feed.</li>
-            <li><strong>SJ4000 RTSP:</strong> Switch camera to Video mode. Requires FFmpeg on this PC.</li>
-            <li><strong>Drive:</strong> <kbd>W</kbd> forward, <kbd>S</kbd> back, <kbd>A</kbd>/<kbd>D</kbd> turn.</li>
+            <li><strong>Robot:</strong> ESP32-C3 over Ethernet (LAN).</li>
+            <li><strong>Camera:</strong> SJ4000 Wi-Fi at <code>192.168.1.254</code>.</li>
+            <li><strong>Drive:</strong> Dual-steer pipe robot with pan/tilt camera mount.</li>
           </ul>
         </section>
       </aside>

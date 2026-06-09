@@ -1,24 +1,27 @@
 # PipeInspect UI
 
-Web control dashboard for a pipe inspection robot. Drive the robot over Ethernet, view a live SJ4000 camera feed, and send movement commands from the keyboard.
+Web control dashboard for a **dual-steer pipe inspection robot**. Drive over Ethernet, steer front and back wheels independently, pan/tilt the camera mount, and view a live SJ4000 feed.
 
 Built for **ESP32-C3** (LAN/Ethernet) + **SJCAM SJ4000** (Wi-Fi camera).
 
 ## Features
 
-- **Robot connection** — Enter the ESP32-C3 IP and connect over LAN
-- **WASD control** — Forward, reverse, turn left/right; Space to stop
-- **SJ4000 live feed** — MJPEG (Photo mode) or RTSP (Video mode)
-- **ESP32 firmware** — Ready-to-flash sketch with motor control stubs
+- **Robot connection** — ESP32-C3 over LAN
+- **Dual-steer drive** — Independent front and back steering
+- **Camera mount control** — Pan/tilt from the keyboard
+- **SJ4000 live feed** — MJPEG or RTSP
+- **ESP32 firmware** — Matches the UI command protocol
 
 ## Hardware
 
 | Component | Role |
 |-----------|------|
 | ESP32-C3 + W5500 | Robot controller over Ethernet |
-| Motor driver + motors | Tank-drive movement |
-| SJCAM SJ4000 | Wi-Fi camera on the robot |
-| PC | Runs the web UI and connects to both robot and camera |
+| Drive motors | Forward / reverse |
+| Front & back steer servos | Independent wheel steering |
+| Pan/tilt servos | Camera mount orientation |
+| SJCAM SJ4000 | Wi-Fi video feed |
+| PC | Runs the web UI |
 
 ## Network setup
 
@@ -27,10 +30,6 @@ PC ── Ethernet ──► Router/Switch ──► ESP32-C3 (192.168.1.100)
 PC ── Wi-Fi ──────► SJ4000 AP (192.168.1.254)
 ```
 
-Your PC uses **Ethernet for the robot** and **Wi-Fi for the camera** at the same time.
-
-Default IPs (change in firmware / UI if your network differs):
-
 | Device | Default IP |
 |--------|------------|
 | ESP32-C3 | `192.168.1.100` |
@@ -38,104 +37,104 @@ Default IPs (change in firmware / UI if your network differs):
 
 ## Quick start
 
-### 1. Install dependencies
-
 ```bash
 pip install -r requirements.txt
-```
-
-### 2. Run the web UI
-
-```bash
 python app.py
 ```
 
-Open **http://127.0.0.1:5000** in your browser.
+Open **http://127.0.0.1:5000**
 
-### 3. Connect the robot
-
-1. Plug the ESP32-C3 into your LAN with Ethernet.
-2. Flash the firmware (see below).
-3. Enter the robot IP in the UI and click **Connect**.
-
-### 4. Start the camera feed
-
-1. Turn on SJ4000 Wi-Fi and connect your PC to the camera network.
-2. In the UI, choose a stream preset:
-   - **SJ4000 MJPEG (Photo mode)** — recommended, no extra software
-   - **SJ4000 RTSP (Video mode)** — requires [FFmpeg](https://ffmpeg.org/) on your PC
-3. Click **Start Feed**.
+1. Connect robot over LAN and click **Connect**
+2. Join SJ4000 Wi-Fi and click **Start Feed**
+3. Use the **Dual-Steer Robot Panel** or keyboard
 
 ## Controls
 
+### Drive
+| Key / Button | Action |
+|--------------|--------|
+| `W` | Forward (hold) |
+| `S` | Backward (hold) |
+| Stop | Stop drive |
+
+Hold `W`/`S` to move. Release to stop.
+
+### Front steering
 | Key | Action |
 |-----|--------|
-| `W` | Forward |
-| `S` | Reverse |
-| `A` | Turn left |
-| `D` | Turn right |
-| `Space` | Stop |
+| `A` | Steer left (hold) |
+| `D` | Steer right (hold) |
+| `F` | Re-center front wheels |
+
+### Back steering
+| Key | Action |
+|-----|--------|
+| `Z` | Steer left (hold) |
+| `C` | Steer right (hold) |
+| `V` | Re-center back wheels |
+
+Hold steer keys to adjust angle. Release to hold the current angle.
+
+### Camera mount
+| Key | Action |
+|-----|--------|
+| `8` | Tilt up (hold) |
+| `2` | Tilt down (hold) |
+| `4` | Pan left (hold) |
+| `6` | Pan right (hold) |
+| `5` | Re-center camera |
+
+Numpad keys are supported (`Numpad8`, etc.).
 
 ## ESP32-C3 firmware
-
-Sketch location:
 
 ```
 firmware/pipeinspect_esp32c3/pipeinspect_esp32c3.ino
 ```
 
-### Flash steps
+### HTTP API
 
-1. Open the sketch in Arduino IDE.
-2. Install board support for **ESP32-C3**.
-3. Install the **Ethernet** library (W5500).
-4. Update these settings in the sketch for your hardware:
-   - W5500 SPI pins (`W5500_CS`, `SPI_MOSI`, etc.)
-   - Motor driver pins
-   - Static IP, gateway, and subnet
-5. Upload to the ESP32-C3.
+| Method | Endpoint | Body |
+|--------|----------|------|
+| `GET` | `/status` | — |
+| `POST` | `/command` | `{"key":"W","action":"down"}` |
 
-### HTTP API (robot)
+**Actions:** `down` (key held), `up` (key released), `press` (momentary)
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/status` | Returns `{"device":"ESP32-C3","key_received":"None"}` |
-| `POST` | `/command` | Body: `{"key":"W"}` — keys: `W`, `A`, `S`, `D`, ` ` (stop) |
-| `GET` | `/command?key=W` | Alternative GET format |
+**Keys:** `W`, `S`, `STOP`, `A`, `D`, `F`, `Z`, `C`, `V`, `8`, `2`, `4`, `6`, `5`
 
-## SJ4000 camera notes
+Example response:
 
-- **MJPEG:** Put the camera in **Photo mode**. Stream URL: `http://192.168.1.254:8192/`
-- **RTSP:** Put the camera in **Video mode**. Stream URL: `rtsp://192.168.1.254/sjcam.mov`
-- The UI can switch camera mode automatically when you start the feed.
+```json
+{"key_received":"W","action":"down"}
+```
 
-References: [SJCam API docs](https://github.com/Zsub/SJCam-API), [SJ4000 WiFi streaming discussion](https://video.stackexchange.com/questions/19886/how-to-set-up-a-livestream-from-sj4000-wifi)
+Update motor pins, servo pins, and network settings in the sketch before flashing.
+
+## SJ4000 camera
+
+- **MJPEG (Photo mode):** `http://192.168.1.254:8192/`
+- **RTSP (Video mode):** `rtsp://192.168.1.254/sjcam.mov` (requires FFmpeg on PC)
+
+References: [SJCam API](https://github.com/Zsub/SJCam-API), [SJ4000 streaming notes](https://video.stackexchange.com/questions/19886/how-to-set-up-a-livestream-from-sj4000-wifi)
 
 ## Project structure
 
 ```
 getabec/
-├── app.py                          # Flask server + camera/robot proxy
+├── app.py
 ├── requirements.txt
-├── templates/
-│   └── index.html                  # Main UI
-├── static/
-│   ├── css/style.css
-│   └── js/app.js
-└── firmware/
-    └── pipeinspect_esp32c3/
-        └── pipeinspect_esp32c3.ino # ESP32-C3 robot firmware
+├── templates/index.html
+├── static/css/style.css
+├── static/js/app.js
+└── firmware/pipeinspect_esp32c3/pipeinspect_esp32c3.ino
 ```
 
 ## Troubleshooting
 
 | Problem | Check |
 |---------|--------|
-| Robot won't connect | Ethernet cable, same LAN as PC, correct IP in firmware |
-| Camera feed fails | PC joined SJ4000 Wi-Fi, camera in correct mode (Photo for MJPEG) |
-| RTSP feed fails | Install FFmpeg and set camera to Video mode |
-| Motors don't move | Motor pin wiring and driver power in the firmware sketch |
-
-## License
-
-MIT — use and modify for your inspection robot project.
+| Robot won't connect | Ethernet cable, same LAN, correct IP in firmware |
+| Steer doesn't hold angle | ESP32 firmware flashed with dual-steer sketch |
+| Camera feed fails | PC on SJ4000 Wi-Fi, correct camera mode |
+| RTSP fails | Install FFmpeg, use Video mode on SJ4000 |

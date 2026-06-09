@@ -76,8 +76,9 @@ def robot_command():
     data = request.get_json(silent=True) or {}
     ip = (data.get("ip") or "").strip()
     key = (data.get("key") or "").strip().upper()
+    action = (data.get("action") or "press").strip().lower()
     if key == "SPACE":
-        key = " "
+        key = "STOP"
 
     if not ip:
         return jsonify({"ok": False, "error": "Robot IP is required."}), 400
@@ -85,27 +86,28 @@ def robot_command():
         return jsonify({"ok": False, "error": "Key is required."}), 400
 
     base = _robot_base_url(ip)
+    payload = {"key": key, "action": action}
     try:
         response = requests.post(
             f"{base}/command",
-            json={"key": key},
+            json=payload,
             timeout=ROBOT_TIMEOUT,
         )
         response.raise_for_status()
-        payload = response.json() if response.content else {"key_received": key}
-        return jsonify({"ok": True, "response": payload})
+        body = response.json() if response.content else {"key_received": key, "action": action}
+        return jsonify({"ok": True, "response": body})
     except requests.exceptions.JSONDecodeError:
-        return jsonify({"ok": True, "response": {"key_received": key}})
+        return jsonify({"ok": True, "response": {"key_received": key, "action": action}})
     except requests.RequestException:
         try:
             response = requests.get(
                 f"{base}/command",
-                params={"key": key if key != " " else "STOP"},
+                params={"key": key, "action": action},
                 timeout=ROBOT_TIMEOUT,
             )
             response.raise_for_status()
-            payload = response.json() if response.content else {"key_received": key}
-            return jsonify({"ok": True, "response": payload})
+            body = response.json() if response.content else {"key_received": key, "action": action}
+            return jsonify({"ok": True, "response": body})
         except requests.RequestException as exc:
             return jsonify({"ok": False, "error": str(exc)}), 502
 

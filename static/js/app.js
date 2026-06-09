@@ -11,12 +11,23 @@ const cameraConnectBtn = document.getElementById("camera-connect");
 const cameraStreamEl = document.getElementById("camera-stream");
 const cameraPlaceholderEl = document.getElementById("camera-placeholder");
 
-const keyGrid = document.getElementById("key-grid");
-const keyCaps = [...document.querySelectorAll(".key-cap")];
+const controlPanel = document.getElementById("control-panel");
+const padButtons = [...document.querySelectorAll(".pad-btn")];
 
-const MOVEMENT_KEYS = new Set(["W", "A", "S", "D", " "]);
-const KEY_LABELS = {
-  " ": "STOP",
+const HOLD_KEYS = new Set(["W", "S", "A", "D", "Z", "C", "8", "2", "4", "6"]);
+const PRESS_KEYS = new Set(["F", "V", "5", "STOP"]);
+const ALL_KEYS = new Set([...HOLD_KEYS, ...PRESS_KEYS]);
+
+const KEY_ALIASES = {
+  ARROWUP: "W",
+  ARROWDOWN: "S",
+  ARROWLEFT: "A",
+  ARROWRIGHT: "D",
+  NUMPAD8: "8",
+  NUMPAD2: "2",
+  NUMPAD4: "4",
+  NUMPAD6: "6",
+  NUMPAD5: "5",
 };
 
 const SJ4000_IP = "192.168.1.254";
@@ -33,11 +44,15 @@ function setRobotStatus(connected, message) {
   robotStatusEl.classList.toggle("disconnected", !connected);
 }
 
-function updateKeyDisplay(key) {
-  const label = KEY_LABELS[key] || key || "None";
-  keyPressedEl.textContent = label;
-  keyCaps.forEach((cap) => {
-    cap.classList.toggle("active", cap.dataset.key === key);
+function updateKeyDisplay() {
+  if (activeKeys.size === 0) {
+    keyPressedEl.textContent = "None";
+  } else {
+    keyPressedEl.textContent = [...activeKeys].join(", ");
+  }
+
+  padButtons.forEach((btn) => {
+    btn.classList.toggle("active", activeKeys.has(btn.dataset.key));
   });
 }
 
@@ -77,9 +92,9 @@ async function connectRobot() {
   }
 }
 
-async function sendCommand(key) {
+async function sendCommand(key, action) {
   if (!robotConnected || !robotIp) {
-    setRobotResponse({ key_received: key, warning: "Robot not connected" });
+    setRobotResponse({ key_received: key, action, warning: "Robot not connected" });
     return;
   }
 
@@ -87,7 +102,7 @@ async function sendCommand(key) {
     const response = await fetch("/api/robot/command", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ip: robotIp, key }),
+      body: JSON.stringify({ ip: robotIp, key, action }),
     });
     const data = await response.json();
 
@@ -95,9 +110,9 @@ async function sendCommand(key) {
       throw new Error(data.error || "Command failed");
     }
 
-    setRobotResponse(data.response || { key_received: key });
+    setRobotResponse(data.response || { key_received: key, action });
   } catch (error) {
-    setRobotResponse({ key_received: key, error: error.message });
+    setRobotResponse({ key_received: key, action, error: error.message });
   }
 }
 
@@ -130,7 +145,7 @@ async function prepareSj4000Feed() {
       body: JSON.stringify({ ip, preset }),
     });
   } catch {
-    // Camera prep is best-effort; stream may still work if mode is already correct.
+    // Best-effort camera mode switch.
   }
 }
 
@@ -179,47 +194,103 @@ async function startCameraFeed() {
 }
 
 function normalizeKey(event) {
-  const key = event.key.length === 1 ? event.key.toUpperCase() : event.key;
-  if (key === "SPACE" || key === "Spacebar") {
-    return " ";
+  let key = event.key.length === 1 ? event.key.toUpperCase() : event.key.toUpperCase();
+  if (KEY_ALIASES[key]) {
+    key = KEY_ALIASES[key];
+  }
+  if (/^[0-9]$/.test(key)) {
+    return key;
   }
   return key;
 }
 
+function isEditableTarget(target) {
+  return target.matches("input, select, textarea");
+}
+
 function handleKeyDown(event) {
-  if (event.target.matches("input, select, textarea")) {
+  if (isEditableTarget(event.target)) {
     return;
   }
 
   const key = normalizeKey(event);
-  if (!MOVEMENT_KEYS.has(key)) {
+  if (!ALL_KEYS.has(key)) {
     return;
   }
 
   event.preventDefault();
+
+  if (PRESS_KEYS.has(key)) {
+    if (event.repeat) {
+      return;
+    }
+    sendCommand(key, "press");
+    return;
+  }
+
   if (activeKeys.has(key)) {
     return;
   }
 
   activeKeys.add(key);
-  updateKeyDisplay(key);
-  sendCommand(key);
+  updateKeyDisplay();
+  sendCommand(key, "down");
 }
 
 function handleKeyUp(event) {
-  const key = normalizeKey(event);
-  if (!MOVEMENT_KEYS.has(key)) {
+  if (isEditableTarget(event.target)) {
     return;
   }
 
-  activeKeys.delete(key);
-  if (activeKeys.size === 0) {
-    updateKeyDisplay("");
-    setRobotResponse({ key_received: "None" });
-  } else {
-    const lastKey = [...activeKeys].at(-1);
-    updateKeyDisplay(lastKey);
+  const key = normalizeKey(event);
+  if (!HOLD_KEYS.has(key)) {
+    return;
   }
+
+  event.preventDefault();
+  activeKeys.delete(key);
+  updateKeyDisplay();
+  sendCommand(key, "up");
+}
+
+function bindPadButton(btn) {
+  const key = btn.dataset.key;
+  const action = btn.dataset.action;
+
+  if (action === "press") {
+    btn.addEventListener("click", (event) => {
+      event.preventDefault();
+      controlPanel.focus();
+      sendCommand(key, "press");
+    });
+    return;
+  }
+
+  btn.addEventListener("mousedown", (event) => {
+    event.preventDefault();
+    controlPanel.focus();
+    if (activeKeys.has(key)) {
+      return;
+    }
+    activeKeys.add(key);
+    updateKeyDisplay();
+    sendCommand(key, "down");
+  });
+
+  btn.addEventListener("mouseup", () => {
+    activeKeys.delete(key);
+    updateKeyDisplay();
+    sendCommand(key, "up");
+  });
+
+  btn.addEventListener("mouseleave", () => {
+    if (!activeKeys.has(key)) {
+      return;
+    }
+    activeKeys.delete(key);
+    updateKeyDisplay();
+    sendCommand(key, "up");
+  });
 }
 
 streamPresetSelect.addEventListener("change", () => {
@@ -229,20 +300,11 @@ streamPresetSelect.addEventListener("change", () => {
 
 robotConnectBtn.addEventListener("click", connectRobot);
 cameraConnectBtn.addEventListener("click", startCameraFeed);
-keyGrid.addEventListener("keydown", handleKeyDown);
-keyGrid.addEventListener("keyup", handleKeyUp);
+controlPanel.addEventListener("keydown", handleKeyDown);
+controlPanel.addEventListener("keyup", handleKeyUp);
 document.addEventListener("keydown", handleKeyDown);
 document.addEventListener("keyup", handleKeyUp);
+padButtons.forEach(bindPadButton);
 
-keyCaps.forEach((cap) => {
-  cap.addEventListener("mousedown", (event) => {
-    event.preventDefault();
-    keyGrid.focus();
-    const key = cap.dataset.key;
-    updateKeyDisplay(key);
-    sendCommand(key);
-  });
-});
-
-keyGrid.focus();
+controlPanel.focus();
 setRobotResponse({ key_received: "None" });
