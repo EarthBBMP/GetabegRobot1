@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PipeInspect UI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <div class="app">
+    <header class="top-bar">
+      <h1>PipeInspect UI</h1>
+
+      <div class="connection-group">
+        <label for="robot-ip">Robot IP (LAN)</label>
+        <input id="robot-ip" type="text" value="192.168.1.100" placeholder="192.168.1.100" />
+        <button id="robot-connect" type="button">Connect</button>
+        <span id="robot-status" class="status-pill disconnected">Status: Disconnected</span>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel camera-panel">
+        <div class="panel-header">
+          <h2>SJ4000 Live Feed</h2>
+          <div class="camera-controls">
+            <label for="camera-ip">Camera IP</label>
+            <input id="camera-ip" type="text" value="192.168.1.254" placeholder="192.168.1.254" />
+            <select id="stream-preset">
+              <option value="sj4000_mjpeg">SJ4000 MJPEG (Photo mode, :8192)</option>
+              <option value="sj4000_rtsp">SJ4000 RTSP (Video mode)</option>
+              <option value="custom">Custom URL</option>
+            </select>
+            <input id="camera-url" type="text" class="hidden" placeholder="http://192.168.1.254:8192/" />
+            <button id="camera-connect" type="button">Start Feed</button>
+          </div>
+        </div>
+        <div class="camera-viewport">
+          <img id="camera-stream" alt="SJ4000 live feed" hidden />
+          <div id="camera-placeholder" class="camera-placeholder">
+            Connect your PC to the SJ4000 Wi-Fi AP, set the camera to Photo mode, then click Start Feed.
+          </div>
+        </div>
+      </section>
+
+      <aside class="side-column">
+        <section class="panel control-panel">
+          <h2>Keyboard Control</h2>
+          <p class="hint">Use <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> to drive. <kbd>Space</kbd> to stop.</p>
+          <div id="key-grid" class="key-grid" tabindex="0">
+            <div class="key-row">
+              <span class="key-cap" data-key="W">W</span>
+            </div>
+            <div class="key-row">
+              <span class="key-cap" data-key="A">A</span>
+              <span class="key-cap" data-key="S">S</span>
+              <span class="key-cap" data-key="D">D</span>
+            </div>
+            <div class="key-row">
+              <span class="key-cap wide" data-key=" ">STOP</span>
+            </div>
+          </div>
+          <div class="control-meta">
+            <div><span class="label">Key Pressed</span><span id="key-pressed">None</span></div>
+            <div><span class="label">ESP32 Response</span><code id="robot-response">{"key_received":"None"}</code></div>
+          </div>
+        </section>
+
+        <section class="panel help-panel">
+          <h2>Setup</h2>
+          <ul>
+            <li><strong>Robot:</strong> ESP32-C3 over Ethernet (LAN). PC and robot on the same network.</li>
+            <li><strong>Camera:</strong> Join SJ4000 Wi-Fi. Default camera IP is <code>192.168.1.254</code>.</li>
+            <li><strong>SJ4000 MJPEG:</strong> Switch camera to Photo mode, then Start Feed.</li>
+            <li><strong>SJ4000 RTSP:</strong> Switch camera to Video mode. Requires FFmpeg on this PC.</li>
+            <li><strong>Drive:</strong> <kbd>W</kbd> forward, <kbd>S</kbd> back, <kbd>A</kbd>/<kbd>D</kbd> turn.</li>
+          </ul>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

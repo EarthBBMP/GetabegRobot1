@@ -1,0 +1,271 @@
+:root {
+  --bg: #0f1117;
+  --panel: #171b24;
+  --panel-border: #2a3142;
+  --text: #e8edf7;
+  --muted: #9aa7bd;
+  --accent: #6b8cff;
+  --accent-strong: #4f74ff;
+  --success: #3ecf8e;
+  --danger: #ff6b6b;
+  --key: #222838;
+  --key-active: #4f74ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: radial-gradient(circle at top, #171c29 0%, var(--bg) 55%);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.app {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.top-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.top-bar h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  letter-spacing: 0.02em;
+}
+
+.connection-group,
+.camera-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+label {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+input,
+select,
+button {
+  font: inherit;
+}
+
+input,
+select {
+  background: #0d1018;
+  color: var(--text);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+input {
+  min-width: 160px;
+}
+
+button {
+  background: var(--accent-strong);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+
+button:hover {
+  opacity: 0.92;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+.status-pill {
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  border: 1px solid var(--panel-border);
+}
+
+.status-pill.connected {
+  color: var(--success);
+  border-color: rgba(62, 207, 142, 0.35);
+  background: rgba(62, 207, 142, 0.08);
+}
+
+.status-pill.disconnected {
+  color: var(--muted);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) minmax(280px, 1fr);
+  gap: 18px;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.panel h2 {
+  margin: 0 0 12px;
+  font-size: 1.05rem;
+}
+
+.panel-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.camera-viewport {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #090b10;
+  border: 1px solid #111722;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+#camera-stream {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  background: #000;
+}
+
+.camera-placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  padding: 24px;
+  text-align: center;
+}
+
+.side-column {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.hint {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+kbd {
+  display: inline-block;
+  min-width: 1.5rem;
+  text-align: center;
+  padding: 2px 6px;
+  margin: 0 2px;
+  border-radius: 6px;
+  background: var(--key);
+  border: 1px solid var(--panel-border);
+}
+
+.key-grid {
+  outline: none;
+  margin-bottom: 16px;
+}
+
+.key-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.key-cap {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--key);
+  border: 1px solid var(--panel-border);
+  font-weight: 700;
+  user-select: none;
+}
+
+.key-cap.active {
+  background: var(--key-active);
+  border-color: #8aa4ff;
+  box-shadow: 0 0 0 2px rgba(79, 116, 255, 0.25);
+}
+
+.key-cap.wide {
+  width: 210px;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+}
+
+.help-panel code {
+  color: #b8c7ff;
+}
+
+.control-meta,
+.info-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.control-meta .label,
+.info-grid .label {
+  display: block;
+  color: var(--muted);
+  font-size: 0.82rem;
+  margin-bottom: 4px;
+}
+
+#robot-response {
+  display: block;
+  padding: 10px;
+  border-radius: 8px;
+  background: #0d1018;
+  border: 1px solid var(--panel-border);
+  color: #b8c7ff;
+  word-break: break-word;
+}
+
+.help-panel ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
