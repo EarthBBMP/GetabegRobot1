@@ -106,7 +106,7 @@ firmware/pipeinspect_esp32c3/pipeinspect_esp32c3.ino
 Example response:
 
 ```json
-{"key_received":"W","action":"down"}
+{"key_received":"W","action":"up"}
 ```
 
 Update motor pins, servo pins, and network settings in the sketch before flashing.
